@@ -1,13 +1,13 @@
-; ModuleID = './example1.c'
+; ModuleID = '/Users/kalius/Documents/spbctf/tools/llvm_proj/examples/example1.ll'
 source_filename = "./example1.c"
 target datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx12.0.0"
 
-@key = constant [3 x i8] c"\01\02\03", align 1
-@.str = private unnamed_addr constant [12 x i8] c"%d Meow...\0A\00", align 1
-@.str.1 = private unnamed_addr constant [29 x i8] c"[do_nothing] made something\0A\00", align 1
-@.str.2 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@.str.3 = private unnamed_addr constant [27 x i8] c"[do_nothing] made nothing\0A\00", align 1
+@key = constant [3 x i8] c"\E8\16\9C", align 1
+@.str = private unnamed_addr constant [12 x i8] c"\95\A2S\08\D5\A9\04k\9E\E8y\00", align 1
+@.str.1 = private unnamed_addr constant [29 x i8] c"\E6\0A\16\0E\D3\01\0D9\D4\00\1E\0C\9D\03\185\D8N\0A>\D0\0B\0D9\D4\00\1E[\00", align 1
+@.str.2 = private unnamed_addr constant [4 x i8] c"BCm\00", align 1
+@.str.3 = private unnamed_addr constant [27 x i8] c"\D44\CEj\E1?\D5]\E6>\C6h\AF=\C0Q\EAp\CFZ\FB8\C8[\E8Z\00", align 1
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define i8* @encode_alloc(i8* %0, i64 %1, i8* %2, i64 %3) #0 {
@@ -104,7 +104,8 @@ define void @say_meow(i32 %0) #0 {
   %2 = alloca i32, align 4
   store i32 %0, i32* %2, align 4
   %3 = load i32, i32* %2, align 4
-  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str, i64 0, i64 0), i32 %3)
+  %4 = call i8* @encode_alloc(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str, i64 0, i64 0), i64 12, i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str, i64 0, i64 0), i64 12)
+  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str, i64 0, i64 0), i32 %3)
   ret void
 }
 
@@ -122,25 +123,31 @@ define void @do_nothing(i32 %0) #0 {
   %8 = add nsw i32 %7, 40
   %9 = mul nsw i32 %8, 32
   %10 = icmp sgt i32 %9, 300
-  br i1 %10, label %11, label %19
+  br i1 %10, label %11, label %24
 
 11:                                               ; preds = %1
-  %12 = call i8* @encode_alloc(i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i64 0, i64 0), i64 29, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
-  store i8* %12, i8** %3, align 8
-  %13 = load i8*, i8** %3, align 8
-  %14 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i8* %13)
+  %12 = call i8* @encode_alloc(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
+  %13 = call i8* @encode_alloc(i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i64 0, i64 0), i64 29, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i64 0, i64 0), i64 29)
+  %14 = call i8* @encode_alloc(i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.1, i64 0, i64 0), i64 29, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
+  store i8* %14, i8** %3, align 8
   %15 = load i8*, i8** %3, align 8
-  %16 = call i8* @encode_alloc(i8* %15, i64 29, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
-  store i8* %16, i8** %4, align 8
-  %17 = load i8*, i8** %4, align 8
-  %18 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i8* %17)
-  br label %21
+  %16 = call i8* @encode_alloc(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i64 4, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i64 4)
+  %17 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i8* %15)
+  %18 = load i8*, i8** %3, align 8
+  %19 = call i8* @encode_alloc(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
+  %20 = call i8* @encode_alloc(i8* %18, i64 29, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @key, i64 0, i64 0), i64 3)
+  store i8* %20, i8** %4, align 8
+  %21 = load i8*, i8** %4, align 8
+  %22 = call i8* @encode_alloc(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i64 4, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i64 4)
+  %23 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.2, i64 0, i64 0), i8* %21)
+  br label %27
 
-19:                                               ; preds = %1
-  %20 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.3, i64 0, i64 0))
-  br label %21
+24:                                               ; preds = %1
+  %25 = call i8* @encode_alloc(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.3, i64 0, i64 0), i64 27, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.3, i64 0, i64 0), i64 27)
+  %26 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.3, i64 0, i64 0))
+  br label %27
 
-21:                                               ; preds = %19, %11
+27:                                               ; preds = %24, %11
   ret void
 }
 

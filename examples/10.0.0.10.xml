@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.92 scan initiated Wed May 18 19:28:39 2022 as: nmap -sV -oA 10.0.0.10 -p 8080 -->
+<nmaprun scanner="nmap" args="nmap -sV -oA 10.0.0.10 -p 8080" start="1652891319" startstr="Wed May 18 19:28:39 2022" version="7.92" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="1" services="8080"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<runstats><finished time="1652891319" timestr="Wed May 18 19:28:39 2022" summary="Nmap done at Wed May 18 19:28:39 2022; 0 IP addresses (0 hosts up) scanned in 0.30 seconds" elapsed="0.30" exit="success"/><hosts up="0" down="0" total="0"/>
+</runstats>
+</nmaprun>

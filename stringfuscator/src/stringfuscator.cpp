@@ -191,6 +191,7 @@ encode_const(Module &m, GlobalVariable &global_var)
     unsigned char key[4] = { 0 };
     unsigned int key_len = sizeof(key);
     LLVMContext &ctx = m.getContext();
+    ConstantInt *Zero = ConstantInt::get(Type::getInt64Ty(ctx), 0);
     
     // check if constant is an array
     if (ConstantDataArray *const_arr = dyn_cast<ConstantDataArray>(global_var.getInitializer()))
@@ -241,7 +242,26 @@ encode_const(Module &m, GlobalVariable &global_var)
 //                    ins->print(rso);
 //                    LLVM_DEBUG(dbgs() << "Ins type: " << rso.str());
                     IRBuilder<> builder(ins);
-//                    builder.CreateGEP(<#Type *Ty#>, <#Value *Ptr#>, <#ArrayRef<Value *> IdxList#>)
+					
+                    Value *indices[2] = {Zero, Zero};
+					
+                    
+					auto *key_gep = builder.CreateInBoundsGEP(global_var.getType()->getPointerElementType(), &global_var, ArrayRef<Value *>(indices, 2));
+                    
+                    Value *args[] = {
+                        key_gep,
+                        ConstantInt::get(Type::getInt64Ty(ctx), const_arr->getNumElements()),
+                        key_gep,
+                        ConstantInt::get(Type::getInt64Ty(ctx), const_arr->getNumElements())
+                    };
+                    
+//                    args.push_back(key_gep);
+//                    args.push_back(ConstantInt::get(Type::getInt64Ty(ctx), const_arr->getNumElements()));
+//
+//                    args.push_back(key_gep);
+//                    args.push_back(ConstantInt::get(Type::getInt64Ty(ctx), const_arr->getNumElements()));
+                    
+                    builder.CreateCall(m.getFunction("encode_alloc"), args);
                 } else {
                     LLVM_DEBUG(dbgs() << "Not an Instruction\n");
                 }
