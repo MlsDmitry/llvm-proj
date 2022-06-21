@@ -1,3 +1,0 @@
-# Nmap 7.92 scan initiated Wed May 18 19:28:39 2022 as: nmap -sV -oA 10.0.0.10 -p 8080
-WARNING: No targets were specified, so 0 hosts scanned.
-# Nmap done at Wed May 18 19:28:39 2022 -- 0 IP addresses (0 hosts up) scanned in 0.30 seconds
