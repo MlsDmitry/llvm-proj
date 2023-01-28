@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.13.4)
 project(obfuscator)
 
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
+
 #===============================================================================
 # 1. VERIFY LLVM INSTALLATION DIR
 # This is just a bit of a sanity checking.
@@ -18,7 +21,7 @@ endif()
 # OS)
 set(LT_VALID_INSTALLATION FALSE)
 
-# Ubuntu + Darwin
+# Ubuntu + Darwinset(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
 if(EXISTS "${LT_LLVM_INSTALL_DIR}/lib/cmake/llvm/LLVMConfig.cmake")
   set(LT_VALID_INSTALLATION TRUE)
 endif()
@@ -46,10 +49,10 @@ endif()
 # `find_package(llvm)`. So there's no need to add it here.
 list(APPEND CMAKE_PREFIX_PATH "${LT_LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 
-find_package(LLVM 13.0.0 REQUIRED CONFIG)
+find_package(LLVM 15 REQUIRED CONFIG)
 
 # Another sanity check
-if(NOT "13" VERSION_EQUAL "${LLVM_VERSION_MAJOR}")
+if(NOT "15" VERSION_EQUAL "${LLVM_VERSION_MAJOR}")
   message(FATAL_ERROR "Found LLVM ${LLVM_VERSION_MAJOR}, but need LLVM 13")
 endif()
 
