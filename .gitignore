@@ -41,6 +41,7 @@ HikariCore/
 llvm13/
 llvm15/
 .vscode/
+obfuscator_pass/
 llvm-project/
 dev-ubuntu/
 Catch2/
