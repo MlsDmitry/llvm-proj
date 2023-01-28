@@ -36,6 +36,8 @@ test_windows/
 test_stuff/
 HikariCore/
 llvm13/
+llvm15/
+.vscode/
 llvm-project/
 dev-ubuntu/
 Catch2/
