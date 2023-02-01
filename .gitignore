@@ -33,6 +33,7 @@
 
 *.dot
 *.bc
+.gdop/
 .DS_Store
 Xcode/
 test_windows/
