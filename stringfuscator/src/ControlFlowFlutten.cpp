@@ -24,6 +24,7 @@ using namespace std;
 // everything in an anonymous namespace.
 namespace
 {
+
 	bool valueEscapes(Instruction &ins)
 	{
 		BasicBlock *bb = ins.getParent();
@@ -31,7 +32,8 @@ namespace
 		for (Value::use_iterator UI = ins.use_begin(), E = ins.use_end(); UI != E;
 			 ++UI)
 		{
-			if (Instruction *ins_i = dyn_cast<Instruction>(*UI)) {
+			if (Instruction *ins_i = dyn_cast<Instruction>(*UI))
+			{
 				return ins_i->getParent() != bb || isa<PHINode>(ins_i);
 			}
 		}
@@ -41,8 +43,8 @@ namespace
 	void fixStack(Function &F)
 	{
 		// Try to remove phi node and demote reg to stack
-		std::vector<PHINode*> tmpPhi;
-		std::vector<Instruction*> tmpReg;
+		std::vector<PHINode *> tmpPhi;
+		std::vector<Instruction *> tmpReg;
 		BasicBlock &bbEntry = F.getBasicBlockList().front();
 
 		do
@@ -83,19 +85,47 @@ namespace
 
 		} while (tmpReg.size() != 0 || tmpPhi.size() != 0);
 	}
+
+	ConstantInt* getOrInsertState(BasicBlock *successor, std::map<std::string, int> *transitions, SwitchInst *state_switch, int *state_counter)
+	{
+		ConstantInt *state_value;
+		std::string successor_name = successor->getNameOrAsOperand();
+
+		LLVM_DEBUG(dbgs() << "Successor name: " << successor_name << "\n");
+
+		if (transitions->find(successor_name) == transitions->end())
+		{
+			state_value = ConstantInt::get(Type::getInt64Ty(state_switch->getContext()), *state_counter);
+
+			state_switch->addCase(state_value, successor);
+
+			transitions->insert({successor_name, *state_counter});
+
+			*state_counter = *(state_counter) + 1;
+		}
+		else
+		{
+			int defined_state = transitions->at(successor_name);
+			state_value = ConstantInt::get(Type::getInt64Ty(state_switch->getContext()), defined_state);
+		}
+
+		return state_value;
+	}
+
 	void visitor(Function &F)
 	{
-		if (F.getName() != "encode_alloc")
-			return;
+		// if (F.getName() != "encode_alloc")
+		// 	return;
 
 		BasicBlock &firstBB = F.getBasicBlockList().front();
 		LLVMContext &context = F.getContext();
 		IRBuilder<> builder(context);
+		
 
 		// some constants
-		auto *Int64Type = Type::getInt64Ty(context);
-		auto *state_value = ConstantInt::get(Int64Type, 0);
-		auto state_zero = ConstantInt::get(Int64Type, 0);
+		IntegerType *Int64Type = Type::getInt64Ty(context);
+		ConstantInt *state_value = ConstantInt::get(Int64Type, 0);
+		ConstantInt *state_zero = ConstantInt::get(Int64Type, 0);
 
 		LLVM_DEBUG(dbgs() << "Entering function " << F.getName() << "\n");
 
@@ -145,29 +175,26 @@ namespace
 
 				if (branch_ins->getNumSuccessors() == 1)
 				{
-					std::string successor_name = branch_ins->getSuccessor(0)->getNameOrAsOperand();
-
-					LLVM_DEBUG(dbgs() << "Successor name: " << successor_name << "\n");
-
-					if (state_transitions.find(successor_name) == state_transitions.end())
-					{
-						state_value = ConstantInt::get(Int64Type, state_counter);
-
-						state_switch->addCase(state_value, branch_ins->getSuccessor(0));
-
-						state_transitions.insert({successor_name, state_counter});
-
-						state_counter++;
-					}
-					else
-					{
-						int defined_state = state_transitions.at(successor_name);
-						state_value = ConstantInt::get(Int64Type, defined_state);
-					}
+					state_value = getOrInsertState(branch_ins->getSuccessor(0), &state_transitions, state_switch, &state_counter);
 
 					builder.SetInsertPoint(branch_ins);
 
-					StoreInst *store_state_ins = builder.CreateStore(state_value, state);
+					builder.CreateStore(state_value, state);
+
+					builder.CreateBr(dispatcher_bb);
+
+					branch_ins->eraseFromParent();
+				}
+				else
+				{
+					ConstantInt *stateTrue = getOrInsertState(branch_ins->getSuccessor(0), &state_transitions, state_switch, &state_counter);
+					ConstantInt *stateFalse = getOrInsertState(branch_ins->getSuccessor(1), &state_transitions, state_switch, &state_counter);
+
+					builder.SetInsertPoint(branch_ins);
+
+					Value *resultState = builder.CreateSelect(branch_ins->getCondition(), stateTrue, stateFalse);
+
+					builder.CreateStore(resultState, state);
 
 					builder.CreateBr(dispatcher_bb);
 
